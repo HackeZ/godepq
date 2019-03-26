@@ -15,8 +15,9 @@ import (
 	"go/build"
 	"os"
 	"regexp"
+	"strings"
 
-	. "github.com/google/godepq/pkg"
+	. "github.com/hackez/godepq/pkg"
 )
 
 var (
@@ -73,11 +74,15 @@ func run() error {
 	}
 
 	if *ignore != "" {
-		ignoreRegexp, err := regexp.Compile(*ignore)
-		if err != nil {
-			return err
+		igs := make([]*regexp.Regexp, 0, 4)
+		for _, ig := range strings.Split(*ignore, ",") {
+			ignoreRegexp, err := regexp.Compile(ig)
+			if err != nil {
+				return err
+			}
+			igs = append(igs, ignoreRegexp)
 		}
-		builder.Ignored = []*regexp.Regexp{ignoreRegexp}
+		builder.Ignored = igs
 	}
 
 	if *include != "" {
